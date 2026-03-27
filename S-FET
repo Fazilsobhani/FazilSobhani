@@ -1,0 +1,36 @@
+# S-FET: Spin FET Based on Graphene Nanoribbon
+
+A MATLAB simulation of a **Spin Field-Effect Transistor (Spin-FET)** built on 
+Graphene Nanoribbon (GNR) in the presence of **surface roughness**.
+
+## Overview
+
+This project investigates quantum transport in GNR-based Spin-FETs using:
+- **Tight-Binding (TB)** models for electronic structure
+- **Non-Equilibrium Green's Function (NEGF)** formalism for transport
+- **Rashba spin-orbit coupling** analysis
+- Surface roughness modeling and its effect on spin polarization and conductance
+
+## Methods
+
+| Tool | Purpose |
+|---|---|
+| MATLAB | Core simulation environment |
+| Tight-Binding model | Electronic band structure of GNR |
+| Green's functions | Quantum transport calculations |
+| Rashba effect | Spin-orbit interaction modeling |
+
+## Context
+
+Developed as part of the MSc thesis work at the University of Mohaghegh Ardabili, 
+related to the published work on nanostructured semiconductor devices.
+
+## Related Publications
+
+- Sobhani et al. (2020), *Optical and Quantum Electronics*, Springer
+- Sobhani et al. (2020), *Chinese Physics B*, IOP Publishing
+
+## Author
+
+**Sayyed Fazil Sobhani**  
+[LinkedIn](https://www.linkedin.com/in/fazil-sobhani-194b92b4/) | [ResearchGate](https://www.researchgate.net/profile/Fazil-Sobhani)
