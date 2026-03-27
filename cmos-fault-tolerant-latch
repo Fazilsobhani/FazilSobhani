@@ -1,0 +1,174 @@
+# ⚡ Radiation-Hardened CMOS Latch Design (32nm)
+### Soft Error Analysis & Fault-Tolerant Architecture for High-Reliability ICs
+
+<p align="center">
+  <img src="docs/banner.png" alt="RHBD Latch Banner" width="800"/>
+</p>
+
+![Technology](https://img.shields.io/badge/Technology-32nm%20CMOS-blue)
+![Tool](https://img.shields.io/badge/Tool-LTSpice-orange)
+![Language](https://img.shields.io/badge/Python-Analysis-green)
+![Domain](https://img.shields.io/badge/Domain-Radiation%20Hardening-red)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+
+---
+
+## 📖 Overview
+
+This project presents the **design, simulation, and analysis** of radiation-hardened (RHBD) latch architectures in **32nm CMOS technology**, targeting reliability in harsh environments such as:
+
+- 🛰️ Space electronics (satellite, spacecraft)
+- 🚗 Automotive safety-critical ICs (ISO 26262)
+- ⚕️ Medical implantable devices
+- ⚛️ Nuclear instrumentation
+
+Single Event Upsets (SEUs) caused by energetic particles (cosmic rays, alpha particles) can flip stored bits in standard CMOS flip-flops. This project quantifies vulnerability and proposes hardened alternatives.
+
+---
+
+## 🎯 Research Questions
+
+1. What is the **Critical Charge (Q_crit)** of a standard 32nm CMOS latch?
+2. How does the **Window of Vulnerability (WoV)** vary across clock phases?
+3. Which RHBD topology — **DICE**, **TMR**, or **C-element-based** — offers the best area-delay-reliability tradeoff?
+
+---
+
+## 🏗️ Project Structure
+
+```
+cmos-fault-tolerant-latch/
+│
+├── ltspice/
+│   ├── standard_latch.asc         # Baseline D-latch (32nm PTM model)
+│   ├── dice_latch.asc             # DICE (Dual Interlocked Cell) latch
+│   ├── tmr_latch.asc              # Triple Modular Redundancy latch
+│   └── current_injection.asc      # Double-exponential current pulse (SEU model)
+│
+├── python/
+│   ├── qcrit_analysis.py          # Q_crit extraction from LTSpice .raw files
+│   ├── wov_analysis.py            # Window of Vulnerability sweep
+│   ├── compare_topologies.py      # Area / Power / Reliability comparison
+│   └── plot_results.py            # Publication-quality figures
+│
+├── results/
+│   ├── qcrit_standard.png         # Q_crit curve — standard latch
+│   ├── wov_comparison.png         # WoV across topologies
+│   └── topology_tradeoff.png      # Radar chart: area vs power vs SEU immunity
+│
+├── docs/
+│   └── report.md                  # Full technical write-up
+│
+└── README.md
+```
+
+---
+
+## ⚙️ Methodology
+
+### 1. SEU Modeling — Double-Exponential Current Pulse
+
+A radiation strike is modeled as a current injection at a sensitive node:
+
+$$I_{SEU}(t) = \frac{Q_{dep}}{\tau_\alpha - \tau_\beta} \left(e^{-t/\tau_\alpha} - e^{-t/\tau_\beta}\right)$$
+
+Where:
+- `Q_dep` = deposited charge (swept from 0 to 500 fC)
+- `τ_α = 50ps` (collection time constant)
+- `τ_β = 10ps` (ion track establishment)
+
+### 2. Critical Charge (Q_crit) Extraction
+
+Q_crit is defined as the **minimum charge** that causes a bit-flip. Extracted by:
+- Sweeping `Q_dep` in LTSpice parametric analysis
+- Monitoring output node for voltage crossing 50% of VDD
+
+### 3. Window of Vulnerability (WoV)
+
+The WoV defines the **time window** during each clock cycle where an SEU can corrupt data:
+
+$$WoV = t_{upset,end} - t_{upset,start}$$
+
+Measured across both positive and negative clock edges.
+
+### 4. Hardened Architectures Compared
+
+| Architecture | Q_crit (fC) | Area Overhead | Power Overhead |
+|---|---|---|---|
+| Standard D-Latch | ~15 fC | 1× (baseline) | 1× (baseline) |
+| DICE Latch | ~85 fC | 2.4× | 1.9× |
+| TMR Latch | immune* | 3× | 3× |
+| C-Element Latch | ~60 fC | 1.8× | 1.5× |
+
+*TMR immune to single node upsets; vulnerable to multi-node upset (MNU)
+
+---
+
+## 🐍 Python Analysis
+
+### Install dependencies
+```bash
+pip install numpy matplotlib pandas scipy ltspice
+```
+
+### Run Q_crit analysis
+```bash
+python python/qcrit_analysis.py --input ltspice/standard_latch.raw --vdd 1.0
+```
+
+### Run topology comparison
+```bash
+python python/compare_topologies.py --plot
+```
+
+---
+
+## 📊 Key Results
+
+### Q_crit — Standard vs DICE Latch
+The DICE latch achieves **~5.6× higher Q_crit** (85 fC vs 15 fC), providing significantly better SEU immunity at the cost of 2.4× area.
+
+### Window of Vulnerability
+The standard latch is vulnerable for **~180ps** per clock cycle at 1 GHz. The DICE architecture reduces this to **~30ps** — an 83% reduction.
+
+### Recommended Architecture
+For space-grade applications: **DICE latch** — best balance of area overhead and single-node SEU immunity.  
+For safety-critical automotive: **C-element latch** — lower area overhead, sufficient Q_crit for terrestrial environments.
+
+---
+
+## 🔧 Tools & Technology
+
+| Item | Details |
+|---|---|
+| CMOS Process | 32nm PTM (Predictive Technology Model) |
+| Simulator | Synopsys HSPICE / LTSpice XVII |
+| SPICE Models | Arizona State University PTM — 32nm LP |
+| Analysis | Python 3.10, NumPy, Matplotlib, ltspice |
+| Radiation Model | Double-exponential current source (JEDEC standard) |
+
+---
+
+## 📚 References
+
+1. Heijmen, T. (2011). *Soft Errors from Space to Ground.* Springer.
+2. Dodd, P.E., & Massengill, L.W. (2003). Basic mechanisms and modeling of SEU in digital microelectronics. *IEEE TNS, 50*(3).
+3. Calin, T., Nicolaidis, M., & Velazco, R. (1996). Upset hardened memory design for submicron CMOS technology. *IEEE TNS, 43*(6). *(DICE cell original paper)*
+4. Arizona State University PTM: http://ptm.asu.edu/
+
+---
+
+## 👨‍🔬 Author
+
+**Sayyed Fazil Sobhani**  
+MSc Electronics for Intelligent Systems, Big Data & IoT  
+Alma Mater Studiorum – University of Bologna  
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/fazil-sobhani-194b92b4/)
+[![ResearchGate](https://img.shields.io/badge/ResearchGate-Profile-00CCBB)](https://www.researchgate.net/profile/Fazil-Sobhani)
+
+---
+
+## 📄 License
+
+MIT License — free to use for academic and research purposes. Citation appreciated.
